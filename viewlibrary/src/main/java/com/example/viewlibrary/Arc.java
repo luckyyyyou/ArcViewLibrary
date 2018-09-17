@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -17,6 +18,11 @@ public class Arc extends View {
     private Paint mPaint;
     RectF mrectF;
     float length;
+
+    private int startRawX;
+    private int startRawY;
+    private onViewClick mViewClick;
+    private OnClickListener mListener;
     /**
      * 圆的宽度
      */
@@ -35,6 +41,55 @@ public class Arc extends View {
         mPaint = new Paint();
 
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        int x = (int)event.getX();
+        int y = (int)event.getY();
+        int rawX = (int)event.getRawX();
+        int rawY = (int)event.getRawY();
+        int action = event.getAction();
+        switch (action){
+            case MotionEvent.ACTION_DOWN:
+                startRawX = (int)event.getRawX();
+                startRawY = (int)event.getRawY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                break;
+            case MotionEvent.ACTION_UP:
+                //判断点击在View内部
+                if (x + getX() < getRight() && y + getTop() < getBottom()){
+                    mViewClick.onClick(rawX - startRawX,rawY - startRawY);
+                    mListener.onClick(this);
+                }
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public void setOnClickListener(OnClickListener listener){
+        this.mListener = listener;
+    }
+
+
+
+    public void setOnViewClickListener(onViewClick viewClick){
+        this.mViewClick = viewClick;
+    }
+
+    public interface onViewClick{
+        /**
+         *
+         * @param scrollX 从按下到抬起,X轴方向移动的距离
+         * @param scrollY 从按下到抬起,Y轴方向移动的距离
+         */
+        void onClick(float scrollX,float scrollY);
+    }
+
+
+
+
 
 
     @Override
